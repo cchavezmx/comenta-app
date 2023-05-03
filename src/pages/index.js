@@ -1,118 +1,142 @@
-import Image from 'next/image'
+import { useEffect, useState } from 'react';
 import { Inter } from 'next/font/google'
+import CommentPost from '@/components/CommentPost'
+import UserComment from '@/components/UserComment'
+import { comment } from 'postcss';
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 const inter = Inter({ subsets: ['latin'] })
 
+const comentarios_mock = [
+  {
+    _id: 1,
+    avatar: '/avatars/image-juliusomo.png',
+    user: "cinephile_101",
+    content: "Esta película fue increíble, me dejó sin palabras",
+    timeStamp: "27/04/2023 08:23:15"
+  },
+  {
+    _id: 2,
+    user: "moviebuff99",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "Creo que la actuación de los protagonistas fue excelente",
+    timeStamp: "27/04/2023 11:47:31",
+    replay: true
+  },
+  {
+    _id: 3,
+    user: "filmgeek88",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "La trama fue un poco confusa al principio, pero al final todo tuvo sentido",
+    timeStamp: "27/04/2023 15:12:52"
+  },
+  {
+    _id: 4,
+    user: "screenwriter24",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "Me hubiera gustado ver más desarrollo en los personajes secundarios",
+    timeStamp: "27/04/2023 18:39:21"
+  },
+  {
+    _id: 5,
+    user: "moviecritic7",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "En general, fue una película entretenida pero nada sorprendente",
+    timeStamp: "27/04/2023 21:02:57"
+  },
+  {
+    _id: 6,
+    user: "cinemagoer22",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "Esta película me hizo reír y llorar, definitivamente vale la pena verla",
+    timeStamp: "28/04/2023 08:13:06"
+  },
+  {
+    _id: 7,
+    user: "filmstudent45",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "La cinematografía y la música fueron impresionantes",
+    timeStamp: "28/04/2023 12:36:49"
+  },
+  {
+    _id: 8,
+    user: "movielover_90",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "Aunque la trama fue un poco predecible, disfruté mucho la película",
+    timeStamp: "28/04/2023 16:21:02"
+  },
+  {
+    _id: 9,
+    user: "theatergoer12",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "Fui a ver esta película con amigos y todos la disfrutamos mucho",
+    timeStamp: "28/04/2023 19:47:11"
+  },
+  {
+    _id: 10,
+    user: "filmnerd55",
+    avatar: '/avatars/image-juliusomo.png',
+    content: "La película fue buena, pero la novela en la que se basa es aún mejor",
+    timeStamp: "28/04/2023 22:14:24"
+  }
+];
+
 export default function Home() {
+
+  const [login, setLogin] = useState(false)    
+
+  useEffect(() => {
+    // verificar si el usuario esta logueado
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('token')
+      if (!user) {
+        window.location.href = '/login'
+      }
+
+      const token = JSON.parse(user)      
+      if (token) {
+        // servicio de autenticacion
+        fetch(`${API}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token?.token}`
+        },        
+      })
+      .then(res => {
+        if (res.status === 200) {
+          setLogin(true)
+          return res.json()
+        } else {
+          window.location.href = '/login'
+        }
+      })      
+    }
+      
+    }
+
+  }, [])
+
+  const [comments, setComments] = useState(comentarios_mock)  
+
+  if (!login) {
+    return (
+      <div>
+        <h1>Debes iniciar sesion</h1>
+      </div>
+    )
+  }
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    <main className={`flex flex-col p-2 ${inter.className}`}>
+      <CommentPost setComments={setComments} />      
+      {
+        comments.map((coment) => {
+          return (
+            <UserComment key={comment._id} comment={coment} />
+          )
+        })
+      }
     </main>
   )
 }
